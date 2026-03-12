@@ -429,6 +429,12 @@ body::after {
     }
 }
 
+.music-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .music-btn {
     background: none;
     border: none;
