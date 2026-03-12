@@ -74,11 +74,102 @@ class Particle {
     }
 }
 
+const cursorOutline = document.querySelector('.cursor-outline');
 const mouse = { x: 0, y: 0 };
+let cursorX = 0, cursorY = 0;
+let outlineX = 0, outlineY = 0;
+
 document.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
+
+function updateCursor() {
+    // Smooth trailing for dot
+    cursorX += (mouse.x - cursorX) * 0.2;
+    cursorY += (mouse.y - cursorY) * 0.2;
+    cursorDot.style.left = `${cursorX - 3}px`;
+    cursorDot.style.top = `${cursorY - 3}px`;
+
+    // Magnetic / Smooth trailing for outline
+    let targetX = mouse.x;
+    let targetY = mouse.y;
+
+    // Check for magnetic elements (buttons)
+    const magneticElements = document.querySelectorAll('.music-btn, .enter-btn, input[type="range"]');
+    magneticElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const elX = rect.left + rect.width / 2;
+        const elY = rect.top + rect.height / 2;
+        const dist = Math.sqrt(Math.pow(mouse.x - elX, 2) + Math.pow(mouse.y - elY, 2));
+
+        if (dist < 60) {
+            targetX = elX;
+            targetY = elY;
+            cursorOutline.style.width = `${rect.width + 10}px`;
+            cursorOutline.style.height = `${rect.height + 10}px`;
+            cursorOutline.style.borderColor = 'var(--accent-color)';
+        } else {
+            cursorOutline.style.width = '40px';
+            cursorOutline.style.height = '40px';
+            cursorOutline.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+        }
+    });
+
+    outlineX += (targetX - outlineX) * 0.15;
+    outlineY += (targetY - outlineY) * 0.15;
+    cursorOutline.style.left = `${outlineX - parseFloat(cursorOutline.style.width || 40) / 2}px`;
+    cursorOutline.style.top = `${outlineY - parseFloat(cursorOutline.style.height || 40) / 2}px`;
+
+    requestAnimationFrame(updateCursor);
+}
+updateCursor();
+
+// Heart Particle Class
+class Heart {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 15 + 10;
+        this.speedX = (Math.random() - 0.5) * 4;
+        this.speedY = Math.random() * -5 - 2;
+        this.opacity = 1;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.color = Math.random() > 0.5 ? '#ff4d6d' : '#ff758f';
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity -= 0.015;
+        this.rotation += 0.02;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+
+        // Draw Heart Shape
+        ctx.beginPath();
+        const d = this.size;
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-d / 2, -d / 2, -d, d / 3, 0, d);
+        ctx.bezierCurveTo(d, d / 3, d / 2, -d / 2, 0, 0);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+let hearts = [];
+
+function spawnHearts(x, y, count = 15) {
+    for (let i = 0; i < count; i++) {
+        hearts.push(new Heart(x, y));
+    }
+}
 
 // Initialize particles
 for (let i = 0; i < particleCount; i++) {
@@ -182,6 +273,23 @@ function animate() {
         p.draw();
     });
 
+    // Draw hearts
+    hearts = hearts.filter(h => h.opacity > 0);
+    hearts.forEach(h => {
+        h.update();
+        h.draw();
+    });
+
+    // Modulate background vignette and particle intensity based on bass
+    const bass = dataArray[2] / 255;
+    document.body.style.setProperty('--vignette-opacity', 0.6 + (bass * 0.3));
+
+    if (bass > 0.8) {
+        mainContainer.style.filter = `brightness(${1 + (bass - 0.8) * 0.5})`;
+    } else {
+        mainContainer.style.filter = 'none';
+    }
+
     requestAnimationFrame(animate);
 }
 
@@ -261,6 +369,15 @@ document.addEventListener('mousemove', (e) => {
 // Reset tilt when mouse leaves
 document.addEventListener('mouseleave', () => {
     card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+});
+
+// Love Button Interaction
+const loveBtn = document.getElementById('love-btn');
+loveBtn.addEventListener('click', (e) => {
+    const rect = loveBtn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top;
+    spawnHearts(x, y, 20);
 });
 
 volumeSlider.addEventListener('input', (e) => {
