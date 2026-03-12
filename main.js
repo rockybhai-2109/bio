@@ -4,6 +4,23 @@ const enterBtn = document.getElementById('enter-btn');
 const enterScreen = document.getElementById('enter-screen');
 const mainContainer = document.getElementById('main-container');
 const audio = document.getElementById('bg-music');
+const audioSource = audio.querySelector('source');
+
+// Playlist Configuration
+const playlist = [
+    { src: 'Bahon Mein Chale Aao - Lofi.mp3', title: 'Bahon Mein Chale Aao' },
+    { src: 'music.mp3', title: 'Background Track' }
+];
+let currentTrackIndex = 0;
+
+function loadTrack(index) {
+    currentTrackIndex = index;
+    audioSource.src = playlist[index].src;
+    audio.load();
+    if (audioContext && audioContext.state === 'running') {
+        audio.play().catch(e => console.log("Playback error:", e));
+    }
+}
 const cursor = document.querySelector('.cursor');
 const cursorDot = document.querySelector('.cursor-dot');
 
@@ -380,6 +397,30 @@ loveBtn.addEventListener('click', (e) => {
     const x = rect.left + rect.width / 2;
     const y = rect.top;
     spawnHearts(x, y, 20);
+});
+
+// Music Control Buttons
+const musicPrev = document.getElementById('music-prev');
+const musicNext = document.getElementById('music-next');
+
+musicPrev.addEventListener('click', () => {
+    currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+    loadTrack(currentTrackIndex);
+    musicToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    musicWidget.classList.remove('paused');
+});
+
+musicNext.addEventListener('click', () => {
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    loadTrack(currentTrackIndex);
+    musicToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    musicWidget.classList.remove('paused');
+});
+
+// Auto-play next track
+audio.addEventListener('ended', () => {
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    loadTrack(currentTrackIndex);
 });
 
 volumeSlider.addEventListener('input', (e) => {
