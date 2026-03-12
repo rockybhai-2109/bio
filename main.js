@@ -281,13 +281,15 @@ function animate() {
     });
 
     // Modulate background vignette and particle intensity based on bass
-    const bass = dataArray[2] / 255;
-    document.body.style.setProperty('--vignette-opacity', 0.6 + (bass * 0.3));
+    if (dataArray) {
+        const bass = dataArray[2] / 255;
+        document.body.style.setProperty('--vignette-opacity', 0.6 + (bass * 0.3));
 
-    if (bass > 0.8) {
-        mainContainer.style.filter = `brightness(${1 + (bass - 0.8) * 0.5})`;
-    } else {
-        mainContainer.style.filter = 'none';
+        if (bass > 0.8) {
+            mainContainer.style.filter = `brightness(${1 + (bass - 0.8) * 0.5})`;
+        } else {
+            mainContainer.style.filter = 'none';
+        }
     }
 
     requestAnimationFrame(animate);
