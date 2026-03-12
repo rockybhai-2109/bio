@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocky | @rocky_09</title>
+    <meta name="description" content="Official bio link for Rocky. Check out my socials and latest projects.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background Canvas -->
+    <canvas id="canvas-background"></canvas>
+
+    <!-- Enter Screen -->
+    <div class="enter-screen" id="enter-screen">
+        <button class="enter-btn" id="enter-btn">[ click to enter ]</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container" id="main-container">
+        <div class="glass-card">
+            <div class="view-counter"><i class="fa-solid fa-eye"></i> <span id="view-count-val">21</span></div>
+
+            <div class="avatar-container">
+                <canvas id="circular-visualizer"></canvas>
+                <img src="profile.png" alt="Profile" class="avatar" id="profile-pic">
+            </div>
+
+            <h1 class="username">𝚁𝙾𝙲𝙺𝚈 ⚝</h1>
+            <p class="tagline">maybe in another life you are mine 💗 👀</p>
+
+            <div class="location">
+                <i class="fa-solid fa-location-dot"></i> Somewhere 🌹
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Floating Elements Container -->
+    <div id="floating-elements"></div>
+
+    <!-- Background Music (Hidden) -->
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Widget -->
+    <div class="music-widget" id="music-widget">
+        <div class="visualizer-mini">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="music-controls">
+            <button id="music-toggle" class="music-btn"><i class="fa-solid fa-pause"></i></button>
+            <div class="volume-slider-container">
+                <i class="fa-solid fa-volume-high volume-icon"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
