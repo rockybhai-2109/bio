@@ -22,27 +22,29 @@
 .cursor-dot {
     width: 6px;
     height: 6px;
-    background-color: white;
+    background-color: var(--accent-color);
     position: fixed;
-    top: 10px;
-    left: 10px;
+    top: 0;
+    left: 0;
     pointer-events: none;
     z-index: 10000;
     border-radius: 50%;
-    transition: transform 0.1s ease;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, background-color 0.3s ease;
 }
 
 .cursor-outline {
     width: 30px;
     height: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--accent-glow);
     position: fixed;
-    top: 5px;
-    left: 5px;
+    top: 0;
+    left: 0;
     pointer-events: none;
     z-index: 9999;
     border-radius: 50%;
-    transition: width 0.3s, height 0.3s, background-color 0.3s, transform 0.15s ease-out;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 body {
@@ -197,20 +199,19 @@ body::after {
     /* Base constant glow */
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(100, 200, 255, 0.2);
 
-    /* Premium Deep Metallic Shine */
+    /* Ultra-Smooth Luxury Shine */
     background: linear-gradient(120deg,
-            rgba(255, 255, 255, 0.2) 20%,
-            rgba(255, 255, 255, 0.5) 40%,
+            rgba(255, 117, 143, 0.2) 20%,
+            rgba(255, 255, 255, 0.6) 45%,
             rgba(255, 255, 255, 1) 50%,
-            rgba(255, 255, 255, 0.5) 60%,
-            rgba(255, 255, 255, 0.2) 80%);
+            rgba(255, 255, 255, 0.6) 55%,
+            rgba(255, 117, 143, 0.2) 80%);
     background-size: 200% auto;
     color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
-    animation: shineText 6s linear infinite;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    /* Soft ambient glow */
+    animation: shineText 10s ease-in-out infinite;
+    text-shadow: 0 0 15px rgba(255, 117, 143, 0.1);
 }
 
 @keyframes shineText {
@@ -250,31 +251,58 @@ body::after {
 
 .love-btn {
     background: rgba(255, 117, 143, 0.1);
-    border: 1px solid rgba(255, 117, 143, 0.3);
+    border: 1px solid rgba(255, 117, 143, 0.2);
     color: #ff758f;
-    padding: 10px 20px;
+    padding: 12px 28px;
     border-radius: 50px;
     font-size: 0.9rem;
     cursor: none;
-    /* Inherit global pointer hide */
-    transition: all 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 auto;
-    backdrop-filter: blur(5px);
+    gap: 10px;
+    margin: 10px auto 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
     pointer-events: auto;
-    /* Ensure clickable even with custom cursor */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.love-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15),
+            transparent);
+    transition: 0.8s;
+}
+
+.love-btn:hover::before {
+    left: 100%;
 }
 
 .love-btn i {
-    animation: heartBeat 1.5s infinite;
+    font-size: 1rem;
+    transition: transform 0.3s ease;
 }
 
 .love-btn:hover {
     background: rgba(255, 117, 143, 0.2);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 5px 15px rgba(255, 117, 143, 0.3);
+    border-color: rgba(255, 117, 143, 0.5);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(255, 117, 143, 0.3);
+    color: #fff;
+}
+
+.love-btn:hover i {
+    animation: heartBeat 0.8s infinite;
 }
 
 @keyframes heartBeat {

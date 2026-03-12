@@ -103,40 +103,53 @@ document.addEventListener('mousemove', (e) => {
 
 function updateCursor() {
     // Smooth trailing for dot
-    cursorX += (mouse.x - cursorX) * 0.2;
-    cursorY += (mouse.y - cursorY) * 0.2;
-    cursorDot.style.left = `${cursorX - 3}px`;
-    cursorDot.style.top = `${cursorY - 3}px`;
+    cursorX += (mouse.x - cursorX) * 0.25;
+    cursorY += (mouse.y - cursorY) * 0.25;
+    cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
 
     // Magnetic / Smooth trailing for outline
     let targetX = mouse.x;
     let targetY = mouse.y;
+    let isHovering = false;
 
     // Check for magnetic elements (buttons)
-    const magneticElements = document.querySelectorAll('.music-btn, .enter-btn, input[type="range"]');
-    magneticElements.forEach(el => {
+    const interactiveElements = document.querySelectorAll('.music-btn, .enter-btn, .love-btn, input[type="range"]');
+    interactiveElements.forEach(el => {
         const rect = el.getBoundingClientRect();
         const elX = rect.left + rect.width / 2;
         const elY = rect.top + rect.height / 2;
         const dist = Math.sqrt(Math.pow(mouse.x - elX, 2) + Math.pow(mouse.y - elY, 2));
 
-        if (dist < 60) {
+        // Use a dynamic threshold based on element size or a fixed 80px
+        const threshold = 70;
+
+        if (dist < threshold) {
+            isHovering = true;
             targetX = elX;
             targetY = elY;
-            cursorOutline.style.width = `${rect.width + 10}px`;
-            cursorOutline.style.height = `${rect.height + 10}px`;
+
+            // Expand outline and change color
+            cursorOutline.style.width = `${rect.width + 12}px`;
+            cursorOutline.style.height = `${rect.height + 12}px`;
+            cursorOutline.style.borderRadius = window.getComputedStyle(el).borderRadius;
             cursorOutline.style.borderColor = 'var(--accent-color)';
-        } else {
-            cursorOutline.style.width = '40px';
-            cursorOutline.style.height = '40px';
-            cursorOutline.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            cursorDot.style.backgroundColor = 'var(--accent-color)';
+            cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(1.5)`;
         }
     });
 
+    if (!isHovering) {
+        cursorOutline.style.width = '40px';
+        cursorOutline.style.height = '40px';
+        cursorOutline.style.borderRadius = '50%';
+        cursorOutline.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+        cursorDot.style.backgroundColor = 'white';
+        cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(1)`;
+    }
+
     outlineX += (targetX - outlineX) * 0.15;
     outlineY += (targetY - outlineY) * 0.15;
-    cursorOutline.style.left = `${outlineX - parseFloat(cursorOutline.style.width || 40) / 2}px`;
-    cursorOutline.style.top = `${outlineY - parseFloat(cursorOutline.style.height || 40) / 2}px`;
+    cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px)`;
 
     requestAnimationFrame(updateCursor);
 }
