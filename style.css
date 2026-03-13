@@ -225,7 +225,7 @@ body::after {
     padding: 12px 28px;
     border-radius: 50px;
     font-size: 0.9rem;
-    cursor: none;
+    cursor: pointer;
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     display: flex;
     align-items: center;
