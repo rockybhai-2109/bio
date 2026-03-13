@@ -31,14 +31,34 @@
 
             <div class="avatar-container">
                 <canvas id="circular-visualizer"></canvas>
+                <div class="status-badge" id="status-badge" title="Live Status">
+                    <div class="status-dot"></div>
+                </div>
                 <img src="profile.png" alt="Profile" class="avatar" id="profile-pic">
             </div>
 
             <h1 class="username">𝚁𝙾𝙲𝙺𝚈 ⚝</h1>
-            <p class="tagline">maybe in another life you are mine 💗 👀</p>
+            <div class="tagline-container">
+                <span id="typing-text"></span><span class="cursor-blink">|</span>
+            </div>
 
             <div class="location">
                 <i class="fa-solid fa-location-dot"></i> Somewhere 🌹
+            </div>
+
+            <div class="social-grid">
+                <a href="#" class="social-item" title="Discord">
+                    <i class="fa-brands fa-discord"></i>
+                </a>
+                <a href="#" class="social-item" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#" class="social-item" title="Spotify">
+                    <i class="fa-brands fa-spotify"></i>
+                </a>
+                <a href="#" class="social-item" title="GitHub">
+                    <i class="fa-brands fa-github"></i>
+                </a>
             </div>
 
             <button class="love-btn" id="love-btn">
@@ -58,6 +78,9 @@
 
     <!-- Music Control Widget -->
     <div class="music-widget" id="music-widget">
+        <div class="music-progress-container" id="progress-container">
+            <div class="music-progress" id="music-progress"></div>
+        </div>
         <div class="visualizer-mini">
             <span></span>
             <span></span>

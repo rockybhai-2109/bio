@@ -45,32 +45,37 @@ class Particle {
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 0.5; // Varying sizes
-        this.speedX = (Math.random() - 0.5) * 0.2; // Slower
-        this.speedY = (Math.random() - 0.5) * 0.2;
-        this.opacity = Math.random() * 0.5 + 0.2;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.5 + 0.1;
         this.originalOpacity = this.opacity;
-        this.glow = Math.random() * 10 + 5;
+        this.glow = Math.random() * 8 + 2;
     }
 
     update() {
-        let baseSpeed = 0.3;
+        let baseSpeed = 0.5;
+        let bassIntensity = 0;
         if (dataArray) {
-            const avg = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-            baseSpeed += (avg / 255) * 2;
+            // Focus on bass frequencies (index 0-5)
+            const bassAvg = (dataArray[0] + dataArray[1] + dataArray[2] + dataArray[3] + dataArray[4]) / 5;
+            bassIntensity = bassAvg / 255;
+            baseSpeed += bassIntensity * 2;
         }
 
         this.x += this.speedX * (1 + baseSpeed);
         this.y += this.speedY * (1 + baseSpeed);
 
-        // Mouse interaction
+        // Mouse influence: Subtle attraction/repulsion
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 100) {
-            this.opacity = 0.8;
-            this.x -= dx * 0.01;
-            this.y -= dy * 0.01;
+
+        if (distance < 150) {
+            const force = (150 - distance) / 150;
+            this.x -= dx * 0.02 * force;
+            this.y -= dy * 0.02 * force;
+            this.opacity = Math.min(1, this.originalOpacity + force * 0.5);
         } else {
             this.opacity = this.originalOpacity;
         }
@@ -81,13 +86,10 @@ class Particle {
     }
 
     draw() {
-        ctx.shadowBlur = this.glow;
-        ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
         ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset for next particle
     }
 }
 
@@ -102,7 +104,6 @@ class Heart {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        // Varying "impressive" sizes
         this.size = Math.random() * 25 + 15;
         this.speedX = (Math.random() - 0.5) * 10;
         this.speedY = Math.random() * -12 - 5;
@@ -117,8 +118,8 @@ class Heart {
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        this.speedY += this.gravity; // Gravity makes them fall back slightly
-        this.opacity -= 0.012; // Slower fade
+        this.speedY += this.gravity;
+        this.opacity -= 0.012;
         this.rotation += this.rotationSpeed;
     }
 
@@ -127,13 +128,9 @@ class Heart {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.opacity;
-
-        // Premium Heart Glow
         ctx.shadowBlur = this.glow;
         ctx.shadowColor = this.color;
         ctx.fillStyle = this.color;
-
-        // Draw Heart Shape
         ctx.beginPath();
         const d = this.size;
         ctx.moveTo(0, 0);
@@ -146,7 +143,7 @@ class Heart {
 
 let hearts = [];
 
-function spawnHearts(x, y, count = 35) { // Increased count
+function spawnHearts(x, y, count = 35) {
     for (let i = 0; i < count; i++) {
         hearts.push(new Heart(x, y));
     }
@@ -187,8 +184,10 @@ function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     circCtx.clearRect(0, 0, circCanvas.width, circCanvas.height);
 
+    let bassIntensity = 0;
     if (analyser) {
         analyser.getByteFrequencyData(dataArray);
+        bassIntensity = dataArray[2] / 255;
 
         // Pulsing card effect
         const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
@@ -198,54 +197,66 @@ function animate() {
         // Avatar Visualizer
         const centerX = circCanvas.width / 2;
         const centerY = circCanvas.height / 2;
-        const baseRadius = 60; // Just outside the avatar border
+        const baseRadius = 60;
 
         circCtx.lineCap = "round";
 
-        // 1. Draw a subtle persistent base ring
         circCtx.beginPath();
         circCtx.arc(centerX, centerY, baseRadius, 0, Math.PI * 2);
         circCtx.strokeStyle = "rgba(255, 255, 255, 0.05)";
         circCtx.lineWidth = 1;
         circCtx.stroke();
 
-        // Determine number of bars
-        const bars = 60; // Smooth ring
+        const bars = 60;
         const step = Math.floor(dataArray.length / bars);
 
         for (let i = 0; i < bars; i++) {
             const dataIndex = i * step;
-            let barHeight = dataArray[dataIndex] / 5; // Scale height
-            if (barHeight < 3) barHeight = 3; // Minimum visible height
+            let barHeight = dataArray[dataIndex] / 5;
+            if (barHeight < 3) barHeight = 3;
 
             const angle = (i / bars) * Math.PI * 2 - Math.PI / 2;
-
-            const x1 = centerX + Math.cos(angle) * (baseRadius + 2); // Gap from base ring
+            const x1 = centerX + Math.cos(angle) * (baseRadius + 2);
             const y1 = centerY + Math.sin(angle) * (baseRadius + 2);
             const x2 = centerX + Math.cos(angle) * (baseRadius + 2 + barHeight);
             const y2 = centerY + Math.sin(angle) * (baseRadius + 2 + barHeight);
 
-            // Premium Glow Effect
             circCtx.lineWidth = 2.5;
             circCtx.shadowBlur = 15;
 
-            // Dynamic Coloring & Glow based on intensity
             const intensity = dataArray[dataIndex] / 255;
             if (intensity > 0.6) {
                 circCtx.strokeStyle = `rgba(255, 255, 255, ${intensity + 0.2})`;
-                circCtx.shadowColor = "rgba(100, 200, 255, 0.8)"; // Cyan glow on highs
+                circCtx.shadowColor = "rgba(100, 200, 255, 0.8)";
             } else {
                 circCtx.strokeStyle = `rgba(180, 220, 255, ${intensity + 0.1})`;
-                circCtx.shadowColor = "rgba(255, 255, 255, 0.2)"; // Soft white glow on lows
+                circCtx.shadowColor = "rgba(255, 255, 255, 0.2)";
             }
 
             circCtx.beginPath();
             circCtx.moveTo(x1, y1);
             circCtx.lineTo(x2, y2);
             circCtx.stroke();
-
-            // Reset shadow to avoid compounding
             circCtx.shadowBlur = 0;
+        }
+    }
+
+    // Connect particles (Network Effect)
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 100) {
+                const opacity = (1 - distance / 100) * 0.2;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity + (bassIntensity * 0.3)})`;
+                ctx.lineWidth = 0.5 + (bassIntensity * 1);
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+            }
         }
     }
 
@@ -254,20 +265,17 @@ function animate() {
         p.draw();
     });
 
-    // Draw hearts
     hearts = hearts.filter(h => h.opacity > 0);
     hearts.forEach(h => {
         h.update();
         h.draw();
     });
 
-    // Modulate background vignette and particle intensity based on bass
     if (dataArray) {
-        const bass = dataArray[2] / 255;
-        document.body.style.setProperty('--vignette-opacity', 0.6 + (bass * 0.3));
+        document.body.style.setProperty('--vignette-opacity', 0.6 + (bassIntensity * 0.3));
 
-        if (bass > 0.8) {
-            mainContainer.style.filter = `brightness(${1 + (bass - 0.8) * 0.5})`;
+        if (bassIntensity > 0.8) {
+            mainContainer.style.filter = `brightness(${1 + (bassIntensity - 0.8) * 0.5})`;
         } else {
             mainContainer.style.filter = 'none';
         }
@@ -390,3 +398,101 @@ audio.addEventListener('ended', () => {
 volumeSlider.addEventListener('input', (e) => {
     audio.volume = e.target.value;
 });
+
+// --- NEW PREMIUM FEATURES ---
+
+// 1. Rotating Taglines (Typing Effect)
+const typingText = document.getElementById('typing-text');
+const taglines = [
+    "maybe in another life you are mine 💗 👀",
+    "living in a dream world... ✨",
+    "making magic with code 💀",
+    "lost in the music 🎵",
+    "always vibing, never basic 🌊"
+];
+let taglineIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+let typeSpeed = 100;
+
+function typeEffect() {
+    const currentTagline = taglines[taglineIndex];
+
+    if (isDeleting) {
+        typingText.textContent = currentTagline.substring(0, charIndex - 1);
+        charIndex--;
+        typeSpeed = 50;
+    } else {
+        typingText.textContent = currentTagline.substring(0, charIndex + 1);
+        charIndex++;
+        typeSpeed = 100;
+    }
+
+    if (!isDeleting && charIndex === currentTagline.length) {
+        isDeleting = true;
+        typeSpeed = 2000; // Pause at end
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        taglineIndex = (taglineIndex + 1) % taglines.length;
+        typeSpeed = 500;
+    }
+
+    setTimeout(typeEffect, typeSpeed);
+}
+
+// 2. Discord-style Status Simulation
+const statusDot = document.querySelector('.status-dot');
+const statusBadge = document.getElementById('status-badge');
+const statuses = ['online', 'idle', 'dnd', 'streaming'];
+const statusLabels = {
+    'online': 'Online',
+    'idle': 'Away / Idle',
+    'dnd': 'Do Not Disturb',
+    'streaming': 'Streaming on Twitch'
+};
+
+function updateStatus() {
+    statusDot.className = 'status-dot';
+    const randStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    statusDot.classList.add(randStatus);
+    statusBadge.title = statusLabels[randStatus];
+
+    // Randomly change status every 30-60 seconds
+    setTimeout(updateStatus, Math.random() * 30000 + 30000);
+}
+
+// 3. Music Progress Bar Sync
+const progressBar = document.getElementById('music-progress');
+const progressContainer = document.getElementById('progress-container');
+
+audio.addEventListener('timeupdate', () => {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progressBar.style.width = `${percent}%`;
+});
+
+progressContainer.addEventListener('click', (e) => {
+    const width = progressContainer.clientWidth;
+    const clickX = e.offsetX;
+    const duration = audio.duration;
+    audio.currentTime = (clickX / width) * duration;
+});
+
+// 4. Magnetic Social Icons
+const socialItems = document.querySelectorAll('.social-item');
+socialItems.forEach(item => {
+    item.addEventListener('mousemove', (e) => {
+        const rect = item.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        item.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+    });
+
+    item.addEventListener('mouseleave', () => {
+        item.style.transform = `translate(0px, 0px)`;
+    });
+});
+
+// Initialize new features
+typeEffect();
+updateStatus();
