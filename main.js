@@ -440,28 +440,7 @@ function typeEffect() {
     setTimeout(typeEffect, typeSpeed);
 }
 
-// 2. Discord-style Status Simulation
-const statusDot = document.querySelector('.status-dot');
-const statusBadge = document.getElementById('status-badge');
-const statuses = ['online', 'idle', 'dnd', 'streaming'];
-const statusLabels = {
-    'online': 'Online',
-    'idle': 'Away / Idle',
-    'dnd': 'Do Not Disturb',
-    'streaming': 'Streaming on Twitch'
-};
-
-function updateStatus() {
-    statusDot.className = 'status-dot';
-    const randStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    statusDot.classList.add(randStatus);
-    statusBadge.title = statusLabels[randStatus];
-
-    // Randomly change status every 30-60 seconds
-    setTimeout(updateStatus, Math.random() * 30000 + 30000);
-}
-
-// 3. Music Progress Bar Sync
+// 2. Music Progress Bar Sync
 const progressBar = document.getElementById('music-progress');
 const progressContainer = document.getElementById('progress-container');
 
@@ -495,4 +474,3 @@ socialItems.forEach(item => {
 
 // Initialize new features
 typeEffect();
-updateStatus();

@@ -382,44 +382,6 @@ body::after {
     }
 }
 
-/* Status Badge */
-.status-badge {
-    position: absolute;
-    bottom: 45px;
-    right: 45px;
-    width: 24px;
-    height: 24px;
-    background: #121212;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid #0a0a0a;
-    z-index: 10;
-}
-
-.status-dot {
-    width: 14px;
-    height: 14px;
-    background: #43b581;
-    /* Discord Online Green */
-    border-radius: 50%;
-    position: relative;
-    box-shadow: 0 0 10px rgba(67, 181, 129, 0.5);
-}
-
-.status-dot.idle {
-    background: #faa61a;
-}
-
-.status-dot.dnd {
-    background: #f04747;
-}
-
-.status-dot.streaming {
-    background: #593695;
-}
-
 /* Tagline Typing */
 .tagline-container {
     font-size: 0.95rem;
