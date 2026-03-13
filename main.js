@@ -91,88 +91,35 @@ class Particle {
     }
 }
 
-const cursorOutline = document.querySelector('.cursor-outline');
 const mouse = { x: 0, y: 0 };
-let cursorX = 0, cursorY = 0;
-let outlineX = 0, outlineY = 0;
-
 document.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
 
-function updateCursor() {
-    // Smooth trailing for dot
-    cursorX += (mouse.x - cursorX) * 0.25;
-    cursorY += (mouse.y - cursorY) * 0.25;
-    cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-
-    // Magnetic / Smooth trailing for outline
-    let targetX = mouse.x;
-    let targetY = mouse.y;
-    let isHovering = false;
-
-    // Check for magnetic elements (buttons)
-    const interactiveElements = document.querySelectorAll('.music-btn, .enter-btn, .love-btn, input[type="range"]');
-    interactiveElements.forEach(el => {
-        const rect = el.getBoundingClientRect();
-        const elX = rect.left + rect.width / 2;
-        const elY = rect.top + rect.height / 2;
-        const dist = Math.sqrt(Math.pow(mouse.x - elX, 2) + Math.pow(mouse.y - elY, 2));
-
-        // Use a dynamic threshold based on element size or a fixed 80px
-        const threshold = 70;
-
-        if (dist < threshold) {
-            isHovering = true;
-            targetX = elX;
-            targetY = elY;
-
-            // Expand outline and change color
-            cursorOutline.style.width = `${rect.width + 12}px`;
-            cursorOutline.style.height = `${rect.height + 12}px`;
-            cursorOutline.style.borderRadius = window.getComputedStyle(el).borderRadius;
-            cursorOutline.style.borderColor = 'var(--accent-color)';
-            cursorDot.style.backgroundColor = 'var(--accent-color)';
-            cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(1.5)`;
-        }
-    });
-
-    if (!isHovering) {
-        cursorOutline.style.width = '40px';
-        cursorOutline.style.height = '40px';
-        cursorOutline.style.borderRadius = '50%';
-        cursorOutline.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-        cursorDot.style.backgroundColor = 'white';
-        cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(1)`;
-    }
-
-    outlineX += (targetX - outlineX) * 0.15;
-    outlineY += (targetY - outlineY) * 0.15;
-    cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px)`;
-
-    requestAnimationFrame(updateCursor);
-}
-updateCursor();
-
-// Heart Particle Class
+// Heart Particle Class (Enhanced)
 class Heart {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.size = Math.random() * 15 + 10;
-        this.speedX = (Math.random() - 0.5) * 4;
-        this.speedY = Math.random() * -5 - 2;
+        // Varying "impressive" sizes
+        this.size = Math.random() * 25 + 15;
+        this.speedX = (Math.random() - 0.5) * 10;
+        this.speedY = Math.random() * -12 - 5;
+        this.gravity = 0.2;
         this.opacity = 1;
         this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.1;
         this.color = Math.random() > 0.5 ? '#ff4d6d' : '#ff758f';
+        this.glow = 15;
     }
 
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        this.opacity -= 0.015;
-        this.rotation += 0.02;
+        this.speedY += this.gravity; // Gravity makes them fall back slightly
+        this.opacity -= 0.012; // Slower fade
+        this.rotation += this.rotationSpeed;
     }
 
     draw() {
@@ -180,6 +127,10 @@ class Heart {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.opacity;
+
+        // Premium Heart Glow
+        ctx.shadowBlur = this.glow;
+        ctx.shadowColor = this.color;
         ctx.fillStyle = this.color;
 
         // Draw Heart Shape
@@ -195,7 +146,7 @@ class Heart {
 
 let hearts = [];
 
-function spawnHearts(x, y, count = 15) {
+function spawnHearts(x, y, count = 35) { // Increased count
     for (let i = 0; i < count; i++) {
         hearts.push(new Heart(x, y));
     }
