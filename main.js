@@ -86,10 +86,14 @@ class Particle {
     }
 
     draw() {
+        ctx.save();
+        ctx.shadowBlur = this.glow + (this.opacity * 10);
+        ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
         ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.size * (0.8 + this.opacity * 0.5), 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
     }
 }
 
@@ -241,25 +245,18 @@ function animate() {
         }
     }
 
-    // Connect particles (Network Effect)
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+    // Modulate background vignette and particle intensity based on bass
+    if (dataArray) {
+        document.body.style.setProperty('--vignette-opacity', 0.6 + (bassIntensity * 0.3));
 
-            if (distance < 100) {
-                const opacity = (1 - distance / 100) * 0.2;
-                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity + (bassIntensity * 0.3)})`;
-                ctx.lineWidth = 0.5 + (bassIntensity * 1);
-                ctx.beginPath();
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.stroke();
-            }
+        if (bassIntensity > 0.8) {
+            mainContainer.style.filter = `brightness(${1 + (bassIntensity - 0.8) * 0.5})`;
+        } else {
+            mainContainer.style.filter = 'none';
         }
     }
 
+    // Update and Draw Particles
     particles.forEach(p => {
         p.update();
         p.draw();
@@ -270,16 +267,6 @@ function animate() {
         h.update();
         h.draw();
     });
-
-    if (dataArray) {
-        document.body.style.setProperty('--vignette-opacity', 0.6 + (bassIntensity * 0.3));
-
-        if (bassIntensity > 0.8) {
-            mainContainer.style.filter = `brightness(${1 + (bassIntensity - 0.8) * 0.5})`;
-        } else {
-            mainContainer.style.filter = 'none';
-        }
-    }
 
     requestAnimationFrame(animate);
 }
